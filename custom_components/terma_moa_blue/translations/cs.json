@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "bluetooth_confirm": {
+        "description": "Chcete nastavit {name}?"
+      },
+      "user": {
+        "data": {
+          "address": "Zařízení"
+        },
+        "description": "Vyberte Terma MOA Blue topnou tyč"
+      }
+    },
+    "abort": {
+      "already_configured": "Toto zařízení je již nakonfigurováno",
+      "no_devices_found": "Nebyla nalezena žádná zařízení Terma MOA Blue"
+    }
+  },
+  "entity": {
+    "climate": {
+      "room_climate": {
+        "name": "Pokojová teplota"
+      },
+      "element_climate": {
+        "name": "Teplota topné tyče"
+      }
+    },
+    "sensor": {
+      "current_room_temperature": {
+        "name": "Aktuální pokojová teplota"
+      },
+      "target_room_temperature": {
+        "name": "Cílová pokojová teplota"
+      },
+      "current_element_temperature": {
+        "name": "Aktuální teplota topné tyče"
+      },
+      "target_element_temperature": {
+        "name": "Cílová teplota topné tyče"
+      },
+      "operating_mode": {
+        "name": "Provozní režim"
+      }
+    }
+  }
+}

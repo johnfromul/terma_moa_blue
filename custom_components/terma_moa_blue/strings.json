@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "bluetooth_confirm": {
+        "description": "Do you want to setup {name}?"
+      },
+      "user": {
+        "data": {
+          "address": "Device"
+        },
+        "description": "Select your Terma MOA Blue heating element"
+      }
+    },
+    "abort": {
+      "already_configured": "This device is already configured",
+      "no_devices_found": "No Terma MOA Blue devices found"
+    }
+  }
+}
