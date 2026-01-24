@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "bluetooth_confirm": {
+        "description": "Do you want to setup {name}?"
+      },
+      "user": {
+        "data": {
+          "address": "Device"
+        },
+        "description": "Select your Terma MOA Blue heating element"
+      }
+    },
+    "abort": {
+      "already_configured": "This device is already configured",
+      "no_devices_found": "No Terma MOA Blue devices found"
+    }
+  },
+  "entity": {
+    "climate": {
+      "room_climate": {
+        "name": "Room Temperature"
+      },
+      "element_climate": {
+        "name": "Element Temperature"
+      }
+    },
+    "sensor": {
+      "current_room_temperature": {
+        "name": "Current Room Temperature"
+      },
+      "target_room_temperature": {
+        "name": "Target Room Temperature"
+      },
+      "current_element_temperature": {
+        "name": "Current Element Temperature"
+      },
+      "target_element_temperature": {
+        "name": "Target Element Temperature"
+      },
+      "operating_mode": {
+        "name": "Operating Mode"
+      }
+    }
+  }
+}

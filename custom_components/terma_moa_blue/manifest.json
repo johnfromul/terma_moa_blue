@@ -1,0 +1,16 @@
+{
+  "domain": "terma_moa_blue",
+  "name": "Terma MOA Blue",
+  "codeowners": ["@honza"],
+  "config_flow": true,
+  "documentation": "https://github.com/honza/terma_moa_blue",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/honza/terma_moa_blue/issues",
+  "requirements": ["bleak>=0.21.0", "bleak-retry-connector>=3.1.0"],
+  "version": "1.0.4",
+  "bluetooth": [
+    {
+      "local_name": "MOA Blue*"
+    }
+  ]
+}
