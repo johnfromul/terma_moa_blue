@@ -263,8 +263,10 @@ class TermaMoaBlueDevice:
 
     async def turn_on(self, use_room_temp: bool = True) -> None:
         """Turn on the heater."""
-        await self.set_mode(OperatingMode.MANUAL)
+        # Z Frida: režim 0x21 pro zapnutí
+        await self.set_mode(OperatingMode.ON)
 
     async def turn_off(self) -> None:
         """Turn off the heater."""
+        # Z Frida: režim 0x20 pro vypnutí (NE 0x00!)
         await self.set_mode(OperatingMode.OFF)

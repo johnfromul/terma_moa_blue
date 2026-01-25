@@ -25,10 +25,12 @@ MAX_ELEMENT_TEMP = 60
 class OperatingMode(IntEnum):
     """Operating modes for Terma MOA Blue."""
 
-    OFF = 0
-    MANUAL = 1  # Manuální režim (zjištěno z Frida)
+    OFF = 0x20  # 32 - vypnuto (z Frida)
+    ON = 0x21   # 33 - zapnuto/topí (z Frida)
+    
+    # Staré hodnoty (možná nepoužívané)
+    MANUAL = 1
     ROOM_TEMP_MANUAL = 5
     ELEMENT_TEMP_MANUAL = 6
     ROOM_TEMP_SCHEDULE = 7
     ELEMENT_TEMP_SCHEDULE = 8
-    ELEMENT_TEMP_ACTIVE = 0x21  # 33 - aktivní topení spirály (z Frida)
