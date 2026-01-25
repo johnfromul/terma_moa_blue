@@ -94,8 +94,16 @@ class TermaMoaBlueDevice:
                         timeout=CONNECTION_TIMEOUT,
                     )
                     
-                    # Connect
+                    # Connect with pairing
                     await client.connect()
+                    
+                    # Try to pair if not already paired
+                    try:
+                        await client.pair()
+                        _LOGGER.debug("Pairing successful for %s", self.address)
+                    except Exception as pair_err:
+                        # Pairing might fail if already paired - that's OK
+                        _LOGGER.debug("Pairing skipped for %s: %s", self.address, pair_err)
                     
                     if not client.is_connected:
                         raise BleakError("Failed to establish connection")
@@ -203,14 +211,13 @@ class TermaMoaBlueDevice:
         async def write_temp(client: BleakClient) -> None:
             temp_value = int(temperature * 10)
             
-            # Read current temperature first
-            current_data = await client.read_gatt_char(CHAR_ROOM_TEMP)
-            if len(current_data) < 4:
-                raise ValueError("Invalid data from device")
-
-            # Keep current temp, update target
-            new_data = current_data[0:2] + struct.pack("<H", temp_value)
+            # Mobile app ALWAYS sends [0x00, 0x00, target_low, target_high]
+            new_data = bytes([0x00, 0x00]) + struct.pack("<H", temp_value)
             await client.write_gatt_char(CHAR_ROOM_TEMP, new_data)
+            
+            # Small delay after write to ensure it's processed
+            await asyncio.sleep(0.1)
+            
             self._target_room_temp = temperature
             _LOGGER.info("Set room temperature to %.1f°C", temperature)
 
@@ -221,14 +228,23 @@ class TermaMoaBlueDevice:
         async def write_temp(client: BleakClient) -> None:
             temp_value = int(temperature * 10)
             
-            # Read current temperature first
-            current_data = await client.read_gatt_char(CHAR_ELEMENT_TEMP)
-            if len(current_data) < 4:
-                raise ValueError("Invalid data from device")
-
-            # Keep current temp, update target
-            new_data = current_data[0:2] + struct.pack("<H", temp_value)
+            # Mobile app ALWAYS sends [0x00, 0x00, target_low, target_high]
+            # NOT [current_low, current_high, target_low, target_high]
+            new_data = bytes([0x00, 0x00]) + struct.pack("<H", temp_value)
+            
+            _LOGGER.info("Writing element temp %.1f°C: %s (hex: %s)", 
+                        temperature, [b for b in new_data], new_data.hex())
+            
             await client.write_gatt_char(CHAR_ELEMENT_TEMP, new_data)
+            
+            # Small delay after write
+            await asyncio.sleep(0.1)
+            
+            # Read back to verify
+            verify_data = await client.read_gatt_char(CHAR_ELEMENT_TEMP)
+            _LOGGER.info("Verify element temp: %s (hex: %s)", 
+                        [b for b in verify_data], verify_data.hex())
+            
             self._target_element_temp = temperature
             _LOGGER.info("Set element temperature to %.1f°C", temperature)
 

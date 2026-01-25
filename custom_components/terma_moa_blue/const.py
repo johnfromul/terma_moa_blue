@@ -31,3 +31,4 @@ class OperatingMode(IntEnum):
     ELEMENT_TEMP_MANUAL = 6
     ROOM_TEMP_SCHEDULE = 7
     ELEMENT_TEMP_SCHEDULE = 8
+    ELEMENT_TEMP_ACTIVE = 0x21  # 33 - aktivní topení spirály (z Frida)
