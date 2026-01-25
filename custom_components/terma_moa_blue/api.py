@@ -1,4 +1,4 @@
-"""Terma MOA Blue BLE API."""
+"""API for Terma MOA Blue integration - using temporary connections."""
 from __future__ import annotations
 
 import asyncio
@@ -7,15 +7,13 @@ import struct
 from typing import Callable
 
 from bleak import BleakClient
-from bleak.backends.device import BLEDevice
 from bleak.exc import BleakError
-from bleak_retry_connector import establish_connection
+from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
 
 from .const import (
     CHAR_ELEMENT_TEMP,
     CHAR_MODE,
     CHAR_ROOM_TEMP,
-    SERVICE_UUID,
     OperatingMode,
 )
 
@@ -25,13 +23,12 @@ _LOGGER = logging.getLogger(__name__)
 class TermaMoaBlueDevice:
     """Representation of a Terma MOA Blue device."""
 
-    def __init__(self, ble_device: BLEDevice) -> None:
+    def __init__(self, ble_device: BluetoothServiceInfoBleak) -> None:
         """Initialize the device."""
         self._ble_device = ble_device
-        self._client: BleakClient | None = None
-        self._disconnect_callbacks: list[Callable[[], None]] = []
-        self._connect_lock = asyncio.Lock()
-
+        self.address = ble_device.address
+        self._lock = asyncio.Lock()
+        
         # Cached state
         self._current_room_temp: float | None = None
         self._target_room_temp: float | None = None
@@ -40,19 +37,9 @@ class TermaMoaBlueDevice:
         self._mode: OperatingMode | None = None
 
     @property
-    def address(self) -> str:
-        """Return the device address."""
-        return self._ble_device.address
-
-    @property
     def name(self) -> str:
-        """Return the device name."""
-        return self._ble_device.name or "Terma MOA Blue"
-
-    @property
-    def is_connected(self) -> bool:
-        """Return connection status."""
-        return self._client is not None and self._client.is_connected
+        """Return device name."""
+        return self._ble_device.name or f"Terma ({self.address})"
 
     @property
     def current_room_temp(self) -> float | None:
@@ -79,72 +66,44 @@ class TermaMoaBlueDevice:
         """Return current operating mode."""
         return self._mode
 
-    def register_disconnect_callback(self, callback: Callable[[], None]) -> None:
-        """Register a callback to be called on disconnect."""
-        self._disconnect_callbacks.append(callback)
-
-    async def connect(self) -> None:
-        """Connect to the device."""
-        async with self._connect_lock:
-            if self.is_connected:
-                return
-
-            _LOGGER.debug("Connecting to %s", self.address)
+    async def _execute_with_connection(
+        self, operation: Callable[[BleakClient], None]
+    ) -> None:
+        """Execute an operation with a temporary BLE connection."""
+        async with self._lock:
+            _LOGGER.debug("Connecting to %s for operation", self.address)
             try:
-                self._client = await establish_connection(
-                    BleakClient,
-                    self._ble_device,
-                    self.address,
-                    disconnected_callback=self._on_disconnect,
-                    use_services_cache=True,
-                    ble_device_callback=lambda: self._ble_device,
-                )
-                _LOGGER.info("Connected to %s", self.address)
-            except (BleakError, TimeoutError) as err:
-                _LOGGER.error("Failed to connect to %s: %s", self.address, err)
+                async with BleakClient(self._ble_device.address, timeout=20.0) as client:
+                    _LOGGER.debug("Connected to %s", self.address)
+                    await operation(client)
+                    _LOGGER.debug("Operation completed, disconnecting")
+            except (BleakError, TimeoutError, EOFError) as err:
+                _LOGGER.error("Error communicating with device: %s", err)
                 raise
-
-    def _on_disconnect(self, client: BleakClient) -> None:
-        """Handle disconnection."""
-        _LOGGER.warning("Disconnected from %s", self.address)
-        for callback in self._disconnect_callbacks:
-            callback()
-
-    async def disconnect(self) -> None:
-        """Disconnect from the device."""
-        if self._client and self._client.is_connected:
-            await self._client.disconnect()
 
     async def update(self) -> None:
         """Update device state by reading characteristics."""
-        if not self.is_connected:
-            await self.connect()
-
-        try:
-            # Read room temperature (current + target)
-            room_temp_data = await self._client.read_gatt_char(CHAR_ROOM_TEMP)
+        async def read_state(client: BleakClient) -> None:
+            # Read room temperature
+            room_temp_data = await client.read_gatt_char(CHAR_ROOM_TEMP)
             if len(room_temp_data) >= 4:
                 current = struct.unpack("<H", room_temp_data[0:2])[0] / 10.0
                 target = struct.unpack("<H", room_temp_data[2:4])[0] / 10.0
                 self._current_room_temp = current
                 self._target_room_temp = target
-                _LOGGER.debug(
-                    "Room temp: current=%.1f°C, target=%.1f°C", current, target
-                )
+                _LOGGER.debug("Room temp: %.1f°C / %.1f°C", current, target)
 
-            # Read element temperature (current + target)
-            element_temp_data = await self._client.read_gatt_char(CHAR_ELEMENT_TEMP)
+            # Read element temperature
+            element_temp_data = await client.read_gatt_char(CHAR_ELEMENT_TEMP)
             if len(element_temp_data) >= 4:
                 current = struct.unpack("<H", element_temp_data[0:2])[0] / 10.0
                 target = struct.unpack("<H", element_temp_data[2:4])[0] / 10.0
                 self._current_element_temp = current
                 self._target_element_temp = target
-                _LOGGER.debug(
-                    "Element temp: current=%.1f°C, target=%.1f°C", current, target
-                )
+                _LOGGER.debug("Element temp: %.1f°C / %.1f°C", current, target)
 
-            # Read operating mode
-            mode_data = await self._client.read_gatt_char(CHAR_MODE)
+            # Read mode
+            mode_data = await client.read_gatt_char(CHAR_MODE)
             if len(mode_data) >= 1:
                 mode_value = mode_data[0]
                 try:
@@ -154,62 +113,58 @@ class TermaMoaBlueDevice:
                     _LOGGER.warning("Unknown mode value: %d", mode_value)
                     self._mode = None
 
-        except (BleakError, TimeoutError) as err:
-            _LOGGER.error("Failed to update device state: %s", err)
-            raise
+        await self._execute_with_connection(read_state)
 
     async def set_room_temperature(self, temperature: float) -> None:
         """Set target room temperature."""
-        if not self.is_connected:
-            await self.connect()
+        async def write_temp(client: BleakClient) -> None:
+            temp_value = int(temperature * 10)
+            
+            # Read current temperature first
+            current_data = await client.read_gatt_char(CHAR_ROOM_TEMP)
+            if len(current_data) < 4:
+                raise ValueError("Invalid data from device")
 
-        # Temperature is sent as integer (temp * 10)
-        temp_value = int(temperature * 10)
+            # Keep current temp, update target
+            new_data = current_data[0:2] + struct.pack("<H", temp_value)
+            await client.write_gatt_char(CHAR_ROOM_TEMP, new_data)
+            self._target_room_temp = temperature
+            _LOGGER.info("Set room temperature to %.1f°C", temperature)
 
-        # Read current values first
-        current_data = await self._client.read_gatt_char(CHAR_ROOM_TEMP)
-        if len(current_data) < 4:
-            raise ValueError("Invalid data from device")
-
-        # Keep current temperature, update target
-        new_data = current_data[0:2] + struct.pack("<H", temp_value)
-
-        await self._client.write_gatt_char(CHAR_ROOM_TEMP, new_data)
-        self._target_room_temp = temperature
-        _LOGGER.info("Set room temperature to %.1f°C", temperature)
+        await self._execute_with_connection(write_temp)
 
     async def set_element_temperature(self, temperature: float) -> None:
         """Set target element temperature."""
-        if not self.is_connected:
-            await self.connect()
+        async def write_temp(client: BleakClient) -> None:
+            temp_value = int(temperature * 10)
+            
+            # Read current temperature first
+            current_data = await client.read_gatt_char(CHAR_ELEMENT_TEMP)
+            if len(current_data) < 4:
+                raise ValueError("Invalid data from device")
 
-        temp_value = int(temperature * 10)
+            # Keep current temp, update target
+            new_data = current_data[0:2] + struct.pack("<H", temp_value)
+            await client.write_gatt_char(CHAR_ELEMENT_TEMP, new_data)
+            self._target_element_temp = temperature
+            _LOGGER.info("Set element temperature to %.1f°C", temperature)
 
-        current_data = await self._client.read_gatt_char(CHAR_ELEMENT_TEMP)
-        if len(current_data) < 4:
-            raise ValueError("Invalid data from device")
-
-        new_data = current_data[0:2] + struct.pack("<H", temp_value)
-
-        await self._client.write_gatt_char(CHAR_ELEMENT_TEMP, new_data)
-        self._target_element_temp = temperature
-        _LOGGER.info("Set element temperature to %.1f°C", temperature)
+        await self._execute_with_connection(write_temp)
 
     async def set_mode(self, mode: OperatingMode) -> None:
         """Set operating mode."""
-        if not self.is_connected:
-            await self.connect()
+        async def write_mode(client: BleakClient) -> None:
+            # Mode is 4 bytes: [mode, 0x00, 0x00, 0x00]
+            mode_data = bytes([mode.value, 0x00, 0x00, 0x00])
+            await client.write_gatt_char(CHAR_MODE, mode_data)
+            self._mode = mode
+            _LOGGER.info("Set mode to %s", mode.name)
 
-        await self._client.write_gatt_char(CHAR_MODE, bytes([mode.value]))
-        self._mode = mode
-        _LOGGER.info("Set mode to %s", mode.name)
+        await self._execute_with_connection(write_mode)
 
     async def turn_on(self, use_room_temp: bool = True) -> None:
         """Turn on the heater."""
-        if use_room_temp:
-            await self.set_mode(OperatingMode.ROOM_TEMP_MANUAL)
-        else:
-            await self.set_mode(OperatingMode.ELEMENT_TEMP_MANUAL)
+        await self.set_mode(OperatingMode.MANUAL)
 
     async def turn_off(self) -> None:
         """Turn off the heater."""

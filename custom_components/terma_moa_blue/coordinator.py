@@ -27,11 +27,6 @@ class TermaMoaBlueCoordinator(DataUpdateCoordinator[None]):
             update_interval=timedelta(seconds=UPDATE_INTERVAL),
         )
         self.device = TermaMoaBlueDevice(ble_device)
-        self.device.register_disconnect_callback(self._handle_disconnect)
-
-    def _handle_disconnect(self) -> None:
-        """Handle device disconnection."""
-        _LOGGER.warning("Device disconnected, will try to reconnect on next update")
 
     async def _async_update_data(self) -> None:
         """Fetch data from the device."""
@@ -42,4 +37,5 @@ class TermaMoaBlueCoordinator(DataUpdateCoordinator[None]):
 
     async def async_shutdown(self) -> None:
         """Shutdown the coordinator."""
-        await self.device.disconnect()
+        # No persistent connection to close
+        pass
