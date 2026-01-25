@@ -15,7 +15,7 @@ from homeassistant.components.bluetooth import (
 from homeassistant.const import CONF_ADDRESS
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import DOMAIN
+from .const import DOMAIN, SERVICE_UUID
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,10 +80,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         for discovery_info in async_discovered_service_info(self.hass):
             all_devices.append(f"{discovery_info.name} ({discovery_info.address})")
             _LOGGER.debug(
-                "Found BLE device: %s (%s) - RSSI: %s",
+                "Found BLE device: %s (%s) - RSSI: %s - Services: %s",
                 discovery_info.name,
                 discovery_info.address,
                 discovery_info.rssi,
+                discovery_info.service_uuids,
             )
             
             if (
@@ -92,9 +93,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ):
                 continue
 
-            # Look for Terma MOA Blue devices
-            if discovery_info.name and ("MOA Blue" in discovery_info.name or "MOA" in discovery_info.name or "Terma" in discovery_info.name):
-                _LOGGER.info("Found Terma device: %s (%s)", discovery_info.name, discovery_info.address)
+            # Look for Terma MOA Blue devices by SERVICE UUID or name
+            is_terma_device = False
+            
+            # Check by service UUID (nejspolehlivější!)
+            if SERVICE_UUID in discovery_info.service_uuids:
+                is_terma_device = True
+                _LOGGER.info("Found Terma device by SERVICE UUID: %s (%s)", discovery_info.name, discovery_info.address)
+            # Fallback: check by name
+            elif discovery_info.name and ("MOA Blue" in discovery_info.name or "MOA" in discovery_info.name or "Terma" in discovery_info.name):
+                is_terma_device = True
+                _LOGGER.info("Found Terma device by NAME: %s (%s)", discovery_info.name, discovery_info.address)
+            
+            if is_terma_device:
                 self._discovered_devices[
                     discovery_info.address
                 ] = f"{discovery_info.name} ({discovery_info.address})"

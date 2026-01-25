@@ -1,4 +1,4 @@
-"""API for Terma MOA Blue integration - using temporary connections."""
+"""API for Terma MOA Blue integration - temporary connections with manual retry."""
 from __future__ import annotations
 
 import asyncio
@@ -18,6 +18,11 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+# Connection settings
+MAX_CONNECT_ATTEMPTS = 3
+CONNECTION_TIMEOUT = 15.0
+RETRY_DELAY = 2.0
 
 
 class TermaMoaBlueDevice:
@@ -69,17 +74,95 @@ class TermaMoaBlueDevice:
     async def _execute_with_connection(
         self, operation: Callable[[BleakClient], None]
     ) -> None:
-        """Execute an operation with a temporary BLE connection."""
+        """Execute an operation with a temporary BLE connection and retry logic."""
         async with self._lock:
-            _LOGGER.debug("Connecting to %s for operation", self.address)
-            try:
-                async with BleakClient(self._ble_device.address, timeout=20.0) as client:
-                    _LOGGER.debug("Connected to %s", self.address)
+            last_error = None
+            
+            for attempt in range(MAX_CONNECT_ATTEMPTS):
+                client = None
+                try:
+                    _LOGGER.debug(
+                        "Attempt %d/%d: Connecting to %s",
+                        attempt + 1,
+                        MAX_CONNECT_ATTEMPTS,
+                        self.address,
+                    )
+                    
+                    # Create temporary connection
+                    client = BleakClient(
+                        self._ble_device.address,
+                        timeout=CONNECTION_TIMEOUT,
+                    )
+                    
+                    # Connect
+                    await client.connect()
+                    
+                    if not client.is_connected:
+                        raise BleakError("Failed to establish connection")
+                    
+                    _LOGGER.debug("Connected to %s, executing operation", self.address)
+                    
+                    # Execute the operation
                     await operation(client)
-                    _LOGGER.debug("Operation completed, disconnecting")
-            except (BleakError, TimeoutError, EOFError) as err:
-                _LOGGER.error("Error communicating with device: %s", err)
-                raise
+                    
+                    _LOGGER.debug("Operation completed successfully")
+                    return  # Success!
+                    
+                except BleakError as err:
+                    last_error = err
+                    _LOGGER.warning(
+                        "BLE error on attempt %d/%d for %s: %s",
+                        attempt + 1,
+                        MAX_CONNECT_ATTEMPTS,
+                        self.address,
+                        err,
+                    )
+                except TimeoutError as err:
+                    last_error = err
+                    _LOGGER.warning(
+                        "Timeout on attempt %d/%d for %s: %s",
+                        attempt + 1,
+                        MAX_CONNECT_ATTEMPTS,
+                        self.address,
+                        err,
+                    )
+                except Exception as err:
+                    last_error = err
+                    _LOGGER.warning(
+                        "Unexpected error on attempt %d/%d for %s: %s (%s)",
+                        attempt + 1,
+                        MAX_CONNECT_ATTEMPTS,
+                        self.address,
+                        err,
+                        type(err).__name__,
+                    )
+                finally:
+                    # Always try to disconnect
+                    if client is not None:
+                        try:
+                            if client.is_connected:
+                                await client.disconnect()
+                                _LOGGER.debug("Disconnected from %s", self.address)
+                        except Exception as disconnect_err:
+                            _LOGGER.debug(
+                                "Error during disconnect from %s: %s",
+                                self.address,
+                                disconnect_err,
+                            )
+                
+                # Wait before retry (except on last attempt)
+                if attempt < MAX_CONNECT_ATTEMPTS - 1:
+                    _LOGGER.debug(
+                        "Waiting %.1f seconds before retry...", RETRY_DELAY
+                    )
+                    await asyncio.sleep(RETRY_DELAY)
+            
+            # All attempts failed
+            error_msg = f"Failed to communicate with device after {MAX_CONNECT_ATTEMPTS} attempts"
+            if last_error:
+                error_msg = f"{error_msg}: {last_error}"
+            _LOGGER.error(error_msg)
+            raise BleakError(error_msg)
 
     async def update(self) -> None:
         """Update device state by reading characteristics."""
