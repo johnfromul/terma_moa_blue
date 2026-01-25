@@ -101,9 +101,14 @@ class TermaMoaBlueClimate(CoordinatorEntity[TermaMoaBlueCoordinator], ClimateEnt
         """Return hvac operation mode."""
         mode = self.coordinator.device.mode
 
-        if mode == OperatingMode.OFF:
+        # Nové hodnoty z Frida: OFF=0x20, ON=0x21
+        if mode == OperatingMode.OFF:  # 0x20 (32)
             return HVACMode.OFF
+        
+        if mode == OperatingMode.ON:  # 0x21 (33)
+            return HVACMode.HEAT
 
+        # Fallback pro staré režimy (pokud se ještě používají)
         if self._use_room_temp:
             if mode in (OperatingMode.ROOM_TEMP_MANUAL, OperatingMode.ROOM_TEMP_SCHEDULE):
                 return HVACMode.HEAT
@@ -111,6 +116,7 @@ class TermaMoaBlueClimate(CoordinatorEntity[TermaMoaBlueCoordinator], ClimateEnt
             if mode in (
                 OperatingMode.ELEMENT_TEMP_MANUAL,
                 OperatingMode.ELEMENT_TEMP_SCHEDULE,
+                OperatingMode.MANUAL,
             ):
                 return HVACMode.HEAT
 
