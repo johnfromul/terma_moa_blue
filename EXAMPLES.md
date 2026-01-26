@@ -1,48 +1,48 @@
-# Příklady konfigurace pro Lovelace
+# Lovelace Configuration Examples
 
-## Základní termostat karta
+## Basic Thermostat Card
 
 ```yaml
 type: thermostat
-entity: climate.terma_moa_blue_pokojova_teplota
+entity: climate.terma_wireless_element
 ```
 
-## Detailní karta s grafy
+## Detailed Card with Graphs
 
 ```yaml
 type: vertical-stack
 cards:
   - type: thermostat
-    entity: climate.terma_moa_blue_pokojova_teplota
+    entity: climate.terma_wireless_room
   
   - type: entities
-    title: Detaily
+    title: Details
     entities:
-      - entity: sensor.terma_moa_blue_current_room_temperature
-        name: Aktuální teplota
-      - entity: sensor.terma_moa_blue_target_room_temperature
-        name: Cílová teplota
-      - entity: sensor.terma_moa_blue_operating_mode
-        name: Režim
+      - entity: sensor.terma_wireless_current_room_temperature
+        name: Current Temperature
+      - entity: sensor.terma_wireless_target_room_temperature
+        name: Target Temperature
+      - entity: sensor.terma_wireless_operating_mode
+        name: Mode
   
   - type: history-graph
-    title: Teplota - historie
+    title: Temperature History
     hours_to_show: 24
     entities:
-      - entity: sensor.terma_moa_blue_current_room_temperature
-        name: Pokojová teplota
-      - entity: sensor.terma_moa_blue_current_element_temperature
-        name: Teplota radiátoru
+      - entity: sensor.terma_wireless_current_room_temperature
+        name: Room Temperature
+      - entity: sensor.terma_wireless_current_element_temperature
+        name: Element Temperature
 ```
 
-## Karta s oběma termostaty
+## Card with Both Thermostats
 
 ```yaml
 type: vertical-stack
 cards:
   - type: custom:mushroom-climate-card
-    entity: climate.terma_moa_blue_pokojova_teplota
-    name: Pokojová teplota
+    entity: climate.terma_wireless_room
+    name: Room Temperature
     icon: mdi:home-thermometer
     show_temperature_control: true
     hvac_modes:
@@ -51,8 +51,8 @@ cards:
     collapsible_controls: false
   
   - type: custom:mushroom-climate-card
-    entity: climate.terma_moa_blue_teplota_topne_tyce
-    name: Teplota radiátoru
+    entity: climate.terma_wireless_element
+    name: Element Temperature
     icon: mdi:radiator
     show_temperature_control: true
     hvac_modes:
@@ -61,29 +61,29 @@ cards:
     collapsible_controls: false
 ```
 
-**Poznámka:** Pro mushroom karty potřebujete [mushroom](https://github.com/piitaya/lovelace-mushroom) custom kartu z HACS.
+**Note:** Mushroom cards require the [mushroom](https://github.com/piitaya/lovelace-mushroom) custom card from HACS.
 
-## Jednoduchá karta pro rychlé ovládání
+## Simple Quick Control Card
 
 ```yaml
 type: entities
-title: Topení koupelna
+title: Bathroom Heating
 entities:
   - type: custom:slider-entity-row
-    entity: climate.terma_moa_blue_pokojova_teplota
-    name: Teplota
+    entity: climate.terma_wireless_room
+    name: Temperature
     toggle: true
 ```
 
-**Poznámka:** Pro slider kartu potřebujete [slider-entity-row](https://github.com/thomasloven/lovelace-slider-entity-row).
+**Note:** Slider card requires [slider-entity-row](https://github.com/thomasloven/lovelace-slider-entity-row).
 
-## Karta s tlačítky preset teplot
+## Card with Temperature Preset Buttons
 
 ```yaml
 type: vertical-stack
 cards:
   - type: thermostat
-    entity: climate.terma_moa_blue_pokojova_teplota
+    entity: climate.terma_wireless_room
   
   - type: horizontal-stack
     cards:
@@ -94,18 +94,18 @@ cards:
           action: call-service
           service: climate.set_temperature
           service_data:
-            entity_id: climate.terma_moa_blue_pokojova_teplota
+            entity_id: climate.terma_wireless_room
             temperature: 18
             hvac_mode: heat
       
       - type: button
-        name: Komfort (22°C)
+        name: Comfort (22°C)
         icon: mdi:home
         tap_action:
           action: call-service
           service: climate.set_temperature
           service_data:
-            entity_id: climate.terma_moa_blue_pokojova_teplota
+            entity_id: climate.terma_wireless_room
             temperature: 22
             hvac_mode: heat
       
@@ -116,30 +116,30 @@ cards:
           action: call-service
           service: climate.set_temperature
           service_data:
-            entity_id: climate.terma_moa_blue_pokojova_teplota
+            entity_id: climate.terma_wireless_room
             temperature: 26
             hvac_mode: heat
       
       - type: button
-        name: Vypnout
+        name: Turn Off
         icon: mdi:power-off
         tap_action:
           action: call-service
           service: climate.turn_off
           service_data:
-            entity_id: climate.terma_moa_blue_pokojova_teplota
+            entity_id: climate.terma_wireless_room
 ```
 
-## Mini graf karta
+## Mini Graph Card
 
 ```yaml
 type: custom:mini-graph-card
 entities:
-  - entity: sensor.terma_moa_blue_current_room_temperature
-    name: Pokojová teplota
+  - entity: sensor.terma_wireless_current_room_temperature
+    name: Room Temperature
     color: '#3498db'
-  - entity: sensor.terma_moa_blue_target_room_temperature
-    name: Cílová teplota
+  - entity: sensor.terma_wireless_target_room_temperature
+    name: Target Temperature
     color: '#e74c3c'
     show_line: false
     show_points: true
@@ -154,34 +154,34 @@ show:
   legend: false
 ```
 
-**Poznámka:** Pro mini-graph kartu potřebujete [mini-graph-card](https://github.com/kalkih/mini-graph-card).
+**Note:** Mini-graph card requires [mini-graph-card](https://github.com/kalkih/mini-graph-card).
 
-## Apex Charts (pokročilá vizualizace)
+## Apex Charts (Advanced Visualization)
 
 ```yaml
 type: custom:apexcharts-card
 header:
   show: true
-  title: Topení koupelna - historie
+  title: Bathroom Heating - History
   show_states: true
   colorize_states: true
 graph_span: 24h
 update_interval: 1min
 series:
-  - entity: sensor.terma_moa_blue_current_room_temperature
-    name: Pokojová teplota
+  - entity: sensor.terma_wireless_current_room_temperature
+    name: Room Temperature
     stroke_width: 2
     type: line
     color: '#2ecc71'
     curve: smooth
-  - entity: sensor.terma_moa_blue_target_room_temperature
-    name: Cílová teplota
+  - entity: sensor.terma_wireless_target_room_temperature
+    name: Target Temperature
     stroke_width: 2
     type: line
     color: '#e74c3c'
     curve: stepline
-  - entity: sensor.terma_moa_blue_current_element_temperature
-    name: Radiátor
+  - entity: sensor.terma_wireless_current_element_temperature
+    name: Element
     stroke_width: 2
     type: line
     color: '#f39c12'
@@ -194,37 +194,37 @@ yaxis:
       tickAmount: 6
 ```
 
-**Poznámka:** Pro apex charts kartu potřebujete [apexcharts-card](https://github.com/RomRider/apexcharts-card).
+**Note:** Apex charts card requires [apexcharts-card](https://github.com/RomRider/apexcharts-card).
 
-## Conditional card (zobrazit jen když topí)
+## Conditional Card (Show Only When Heating)
 
 ```yaml
 type: conditional
 conditions:
-  - entity: climate.terma_moa_blue_pokojova_teplota
+  - entity: climate.terma_wireless_room
     state_not: 'off'
 card:
   type: entities
-  title: Topení je zapnuté
+  title: Heating is On
   entities:
-    - entity: sensor.terma_moa_blue_current_room_temperature
-      name: Aktuální
-    - entity: sensor.terma_moa_blue_target_room_temperature
-      name: Cílová
-    - entity: sensor.terma_moa_blue_operating_mode
-      name: Režim
+    - entity: sensor.terma_wireless_current_room_temperature
+      name: Current
+    - entity: sensor.terma_wireless_target_room_temperature
+      name: Target
+    - entity: sensor.terma_wireless_operating_mode
+      name: Mode
 ```
 
-## Kompletní dashboard pro koupelnu
+## Complete Bathroom Dashboard
 
 ```yaml
 type: vertical-stack
 cards:
-  # Hlavní termostat
+  # Main thermostat
   - type: thermostat
-    entity: climate.terma_moa_blue_pokojova_teplota
+    entity: climate.terma_wireless_room
   
-  # Rychlá tlačítka
+  # Quick buttons
   - type: horizontal-stack
     cards:
       - type: button
@@ -234,7 +234,7 @@ cards:
           action: call-service
           service: script.bathroom_heating_eco
       - type: button
-        name: Komfort
+        name: Comfort
         icon: mdi:home
         tap_action:
           action: call-service
@@ -246,68 +246,165 @@ cards:
           action: call-service
           service: script.bathroom_heating_boost
   
-  # Status a teploty
+  # Status and temperatures
   - type: entities
     title: Status
     show_header_toggle: false
     entities:
-      - entity: sensor.terma_moa_blue_operating_mode
-        name: Režim
+      - entity: sensor.terma_wireless_operating_mode
+        name: Mode
         icon: mdi:cog
       - type: divider
-      - entity: sensor.terma_moa_blue_current_room_temperature
-        name: Pokojová teplota
+      - entity: sensor.terma_wireless_current_room_temperature
+        name: Room Temperature
         icon: mdi:thermometer
-      - entity: sensor.terma_moa_blue_current_element_temperature
-        name: Teplota radiátoru
+      - entity: sensor.terma_wireless_current_element_temperature
+        name: Element Temperature
         icon: mdi:radiator
   
-  # Graf
+  # Graph
   - type: history-graph
-    title: Historie (24h)
+    title: History (24h)
     hours_to_show: 24
     refresh_interval: 60
     entities:
-      - entity: sensor.terma_moa_blue_current_room_temperature
-        name: Pokojová
-      - entity: sensor.terma_moa_blue_target_room_temperature
-        name: Cílová
+      - entity: sensor.terma_wireless_current_room_temperature
+        name: Room
+      - entity: sensor.terma_wireless_target_room_temperature
+        name: Target
 ```
 
-A příslušné scripty v `configuration.yaml`:
+And corresponding scripts in `configuration.yaml`:
 
 ```yaml
 script:
   bathroom_heating_eco:
-    alias: Koupelna - Eco režim
+    alias: Bathroom - Eco Mode
     sequence:
       - service: climate.set_temperature
         target:
-          entity_id: climate.terma_moa_blue_pokojova_teplota
+          entity_id: climate.terma_wireless_room
         data:
           temperature: 18
           hvac_mode: heat
   
   bathroom_heating_comfort:
-    alias: Koupelna - Komfortní režim
+    alias: Bathroom - Comfort Mode
     sequence:
       - service: climate.set_temperature
         target:
-          entity_id: climate.terma_moa_blue_pokojova_teplota
+          entity_id: climate.terma_wireless_room
         data:
           temperature: 22
           hvac_mode: heat
   
   bathroom_heating_boost:
-    alias: Koupelna - Boost 2 hodiny
+    alias: Bathroom - 2 Hour Boost
     sequence:
       - service: climate.set_temperature
         target:
-          entity_id: climate.terma_moa_blue_pokojova_teplota
+          entity_id: climate.terma_wireless_room
         data:
           temperature: 26
           hvac_mode: heat
       - delay:
           hours: 2
       - service: script.bathroom_heating_comfort
+```
+
+## Automation Examples
+
+### Morning Heating Schedule
+
+```yaml
+automation:
+  - alias: "Bathroom Morning Heat"
+    description: "Heat bathroom before morning shower"
+    trigger:
+      - platform: time
+        at: "06:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      - service: climate.set_hvac_mode
+        target:
+          entity_id: climate.terma_wireless_element
+        data:
+          hvac_mode: heat
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.terma_wireless_element
+        data:
+          temperature: 55
+      - delay:
+          minutes: 45
+      - service: climate.set_hvac_mode
+        target:
+          entity_id: climate.terma_wireless_element
+        data:
+          hvac_mode: "off"
+```
+
+### Temperature-Based Control
+
+```yaml
+automation:
+  - alias: "Maintain Bathroom Temperature"
+    description: "Keep bathroom at comfortable temperature"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.terma_wireless_current_room_temperature
+        below: 20
+    condition:
+      - condition: state
+        entity_id: binary_sensor.bathroom_occupied
+        state: "on"
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.terma_wireless_room
+        data:
+          temperature: 22
+          hvac_mode: heat
+```
+
+### Away Mode
+
+```yaml
+automation:
+  - alias: "Away Mode - Lower Heating"
+    description: "Reduce heating when away from home"
+    trigger:
+      - platform: state
+        entity_id: person.home_owner
+        to: "not_home"
+        for:
+          hours: 2
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.terma_wireless_room
+        data:
+          temperature: 16
+          hvac_mode: heat
+  
+  - alias: "Home Mode - Normal Heating"
+    description: "Restore normal heating when returning home"
+    trigger:
+      - platform: state
+        entity_id: person.home_owner
+        to: "home"
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.terma_wireless_room
+        data:
+          temperature: 22
+          hvac_mode: heat
 ```
