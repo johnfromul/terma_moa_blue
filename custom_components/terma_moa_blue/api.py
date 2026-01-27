@@ -20,9 +20,9 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 # Connection settings
-MAX_CONNECT_ATTEMPTS = 3
-CONNECTION_TIMEOUT = 15.0
-RETRY_DELAY = 2.0
+MAX_CONNECT_ATTEMPTS = 5  # Zvýšeno z 3 na 5
+CONNECTION_TIMEOUT = 20.0  # Zvýšeno z 15 na 20 sekund
+RETRY_DELAY = 3.0  # Zvýšeno z 2 na 3 sekundy mezi pokusy
 
 
 class TermaMoaBlueDevice:

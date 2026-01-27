@@ -102,7 +102,8 @@ class TermaMoaBlueClimate(CoordinatorEntity[TermaMoaBlueCoordinator], ClimateEnt
         mode = self.coordinator.device.mode
 
         # Nové hodnoty z Frida: OFF=0x20, ON=0x21
-        if mode == OperatingMode.OFF:  # 0x20 (32)
+        # Ale zařízení může vracet i 0x00 (vypnuto manuálně)
+        if mode in (OperatingMode.OFF, OperatingMode.OFF_MANUAL):  # 0x20 nebo 0x00
             return HVACMode.OFF
         
         if mode == OperatingMode.ON:  # 0x21 (33)

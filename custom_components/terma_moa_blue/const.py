@@ -13,7 +13,7 @@ CHAR_MODE = "d97352b3-d19e-11e2-9e96-0800200c9a66"
 DEFAULT_PAIRING_CODE = "123456"
 
 # Update intervals
-UPDATE_INTERVAL = 120  # seconds (2 minutes) - topné tyče potřebují delší pauzu mezi připojeními
+UPDATE_INTERVAL = 180  # Prodlouženo na 3 minuty kvůli více zařízením  # seconds (2 minutes) - topné tyče potřebují delší pauzu mezi připojeními
 
 # Temperature limits
 MIN_ROOM_TEMP = 15
@@ -25,8 +25,9 @@ MAX_ELEMENT_TEMP = 60
 class OperatingMode(IntEnum):
     """Operating modes for Terma MOA Blue."""
 
-    OFF = 0x20  # 32 - vypnuto (z Frida)
-    ON = 0x21   # 33 - zapnuto/topí (z Frida)
+    OFF_MANUAL = 0x00  # 0 - vypnuto manuálně na zařízení
+    OFF = 0x20  # 32 - vypnuto přes app/HA
+    ON = 0x21   # 33 - zapnuto/topí
     
     # Staré hodnoty (možná nepoužívané)
     MANUAL = 1
