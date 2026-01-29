@@ -1,348 +1,218 @@
-# Terma MOA Blue - Home Assistant Integration
+# Terma MOA Blue Integration for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-[![GitHub release](https://img.shields.io/github/release/johnfromul/terma_moa_blue.svg)](https://github.com/johnfromul/terma_moa_blue/releases)
-[![License](https://img.shields.io/github/license/johnfromul/terma_moa_blue.svg)](LICENSE)
 
-Home Assistant custom integration for **Terma MOA Blue** electric heating elements via Bluetooth Low Energy (BLE).
+Integrace topných tyčí Terma MOA Blue do Home Assistant přes Bluetooth Low Energy.
 
-This integration allows you to control Terma MOA Blue bathroom radiator heating elements directly from Home Assistant without requiring the official Terma BlueLine Next mobile app.
+## Funkce
 
-![Terma MOA Blue](https://en.termaheat.com/images/logo_terma_red_horizontal_2.svg)
+- ✅ Automatická detekce Bluetooth zařízení
+- ✅ Dvě climate entity (ovládání pokojové a topné teploty)
+- ✅ Teplotní senzory (aktuální a cílové teploty)
+- ✅ Senzor provozního režimu
+- ✅ Podpora českého a anglického jazyka
+- ✅ Plná integrace s Home Assistant včetně automatizací
 
-## Features
+## Požadavky
 
-✅ **Full Control**
-- Turn heating on/off
-- Set target temperature (30-60°C for element, 15-30°C for room)
-- Real-time temperature monitoring
-- LED temperature indicator support
+- Home Assistant 2023.9 nebo novější
+- Bluetooth adaptér (integrovaný nebo USB)
+- Topná tyč Terma MOA Blue
 
-✅ **Native Home Assistant Integration**
-- Climate entity for easy control
-- Temperature sensor entities
-- Lovelace thermostat card compatible
-- Automation support
+## Instalace přes HACS
 
-✅ **Reliable Bluetooth Communication**
-- Automatic device discovery
-- Multiple retry attempts for stable connection
-- Proper BLE pairing support
-- Works with Bluetooth adapters and ESPHome Bluetooth proxies
+### Přidání vlastního repozitáře
 
-## Compatibility
+1. Otevřete HACS v Home Assistant
+2. Klikněte na tři tečky v pravém horním rohu
+3. Vyberte "Custom repositories"
+4. Přidejte URL tohoto repozitáře: `https://github.com/honza/terma_moa_blue`
+5. Vyberte kategorii "Integration"
+6. Klikněte na "Add"
 
-### Supported Devices
-- **Terma MOA Blue** electric heating elements (models with Bluetooth)
-- Firmware: Tested with devices from 2023-2024
+### Instalace integrace
 
-### Requirements
-- Home Assistant 2024.1.0 or newer
-- Bluetooth adapter with BLE support **OR** ESPHome Bluetooth proxy
-- Python 3.11+
+1. V HACS vyhledejte "Terma MOA Blue"
+2. Klikněte na "Download"
+3. Restartujte Home Assistant
 
-## Installation
+## Konfigurace
 
-### HACS (Recommended)
+### Párování topné tyče
 
-1. Open HACS in Home Assistant
-2. Go to "Integrations"
-3. Click the three dots (⋮) in the top right
-4. Select "Custom repositories"
-5. Add repository URL: `https://github.com/johnfromul/terma_moa_blue`
-6. Category: `Integration`
-7. Click "Add"
-8. Click "Install" on the Terma MOA Blue integration
-9. Restart Home Assistant
+Před prvním připojením musíte topnou tyč přepnout do párovacího režimu:
 
-### Manual Installation
+1. Stiskněte a přidržte tlačítko na topné tyči po dobu cca 5 sekund
+2. Modrá LED začne blikat - zařízení je v párovacím režimu
+3. Párovací režim trvá 30 sekund
 
-1. Download the [latest release](https://github.com/johnfromul/terma_moa_blue/releases)
-2. Extract the `terma_moa_blue` folder to your `custom_components` directory:
-   ```
-   config/
-   └── custom_components/
-       └── terma_moa_blue/
-           ├── __init__.py
-           ├── manifest.json
-           ├── ...
-   ```
-3. Restart Home Assistant
+Výchozí párovací kód je: **123456**
 
-## Setup
+### Přidání do Home Assistant
 
-### Step 1: Bluetooth Pairing
+1. Přejděte do **Nastavení** → **Zařízení a služby**
+2. Klikněte na **+ Přidat integraci**
+3. Vyhledejte **Terma MOA Blue**
+4. Vyberte vaši topnou tyč ze seznamu nalezených zařízení
+5. Dokončete konfiguraci
 
-**Important:** Terma MOA Blue devices require Bluetooth pairing before use.
+Pokud není zařízení automaticky nalezeno, ujistěte se, že:
+- Topná tyč je zapnutá a v dosahu Bluetooth
+- Zařízení je v párovacím režimu
+- Bluetooth adaptér je funkční
 
-#### Put Device in Pairing Mode
-1. Press and hold the button on the heating element for **5 seconds**
-2. The **blue LED will start blinking** (pairing mode active for 30 seconds)
+## Entity
 
-#### Pair via Home Assistant Terminal
+Po instalaci budou vytvořeny následující entity:
 
-```bash
-# Open Home Assistant terminal (SSH or Terminal & SSH add-on)
-bluetoothctl
+### Climate (Termostaty)
 
-# Disable scanning to stop log spam
-scan off
+- **Pokojová teplota** - ovládání podle teploty místnosti (15-30°C)
+- **Teplota topné tyče** - ovládání podle teploty radiátoru (30-60°C)
 
-# Pair with your device (replace with your MAC address)
-pair CC:22:37:11:47:6D
+### Senzory
 
-# Enter PIN when prompted
-123456
+- **Aktuální pokojová teplota** - současná teplota v místnosti
+- **Cílová pokojová teplota** - nastavená cílová teplota místnosti
+- **Aktuální teplota topné tyče** - současná teplota radiátoru
+- **Cílová teplota topné tyče** - nastavená cílová teplota radiátoru
+- **Provozní režim** - aktuální režim topné tyče
 
-# Trust the device
-trust CC:22:37:11:47:6D
+### Provozní režimy
 
-# Verify pairing
-paired-devices
+- `OFF` - Vypnuto
+- `ROOM_TEMP_MANUAL` - Manuální řízení podle teploty místnosti
+- `ELEMENT_TEMP_MANUAL` - Manuální řízení podle teploty radiátoru
+- `ROOM_TEMP_SCHEDULE` - Podle rozvrhu (teplota místnosti)
+- `ELEMENT_TEMP_SCHEDULE` - Podle rozvrhu (teplota radiátoru)
 
-# Exit
-quit
-```
+## Příklady automatizací
 
-#### Restart Home Assistant
-```bash
-ha core restart
-```
-
-### Step 2: Add Integration
-
-1. Go to **Settings → Devices & Services**
-2. Click **+ Add Integration**
-3. Search for **"Terma MOA Blue"**
-4. Select your heating element from the discovered devices
-5. Click **Submit**
-
-The integration will create:
-- 1 Climate entity (thermostat)
-- 2 Temperature sensor entities (current room, current element)
-
-## Usage
-
-### Via Lovelace UI
-
-Add a thermostat card to your dashboard:
-
-```yaml
-type: thermostat
-entity: climate.terma_wireless_element
-```
-
-### Via Services
-
-**Turn on heating:**
-```yaml
-service: climate.set_hvac_mode
-target:
-  entity_id: climate.terma_wireless_element
-data:
-  hvac_mode: heat
-```
-
-**Set temperature:**
-```yaml
-service: climate.set_temperature
-target:
-  entity_id: climate.terma_wireless_element
-data:
-  temperature: 50
-```
-
-**Turn off:**
-```yaml
-service: climate.set_hvac_mode
-target:
-  entity_id: climate.terma_wireless_element
-data:
-  hvac_mode: "off"
-```
-
-### Automation Example
-
-Heat bathroom before morning shower:
+### Zapnutí topení ráno
 
 ```yaml
 automation:
-  - alias: "Morning Bathroom Heat"
+  - alias: "Topení koupelna - ranní zapnutí"
     trigger:
       - platform: time
         at: "06:00:00"
     action:
-      - service: climate.set_hvac_mode
-        target:
-          entity_id: climate.terma_wireless_element
-        data:
-          hvac_mode: heat
       - service: climate.set_temperature
         target:
-          entity_id: climate.terma_wireless_element
+          entity_id: climate.terma_moa_blue_pokojova_teplota
         data:
-          temperature: 55
-      - delay:
-          minutes: 30
-      - service: climate.set_hvac_mode
-        target:
-          entity_id: climate.terma_wireless_element
-        data:
-          hvac_mode: "off"
+          temperature: 24
+          hvac_mode: heat
 ```
 
-## Configuration
-
-### Temperature Ranges
-
-- **Element Temperature:** 30-60°C (radiator heating element)
-- **Room Temperature:** 15-30°C (ambient room temperature)
-
-### Update Interval
-
-The integration polls the device every **120 seconds** (2 minutes) to preserve battery life and BLE connection stability.
-
-### LED Temperature Indicator
-
-The heating element's LED bars indicate the current target temperature:
-- 1 bar: 30-37°C
-- 2 bars: 38-43°C
-- 3 bars: 44-49°C
-- 4 bars: 50-55°C
-- 5 bars: 56-60°C
-
-## Troubleshooting
-
-### Device Not Discovered
-
-1. **Check Bluetooth range:** Ensure heating element is within range of your Bluetooth adapter
-2. **Put device in pairing mode:** Blue LED should be blinking
-3. **Check logs:** Settings → System → Logs, filter by `terma_moa_blue`
-
-### Connection Errors
-
-**Error:** `failed to discover services, device disconnected`
-
-**Solution:** Device is not paired. Follow the Bluetooth pairing steps above.
-
-**Error:** `ATT error: 0x0e (Unlikely Error)`
-
-**Solution:** Authentication failed. Remove old pairing and pair again:
-```bash
-bluetoothctl
-remove CC:22:37:11:47:6D
-# Then follow pairing steps again
-```
-
-### Heating Not Starting
-
-1. Verify device is powered (connected to mains)
-2. Check wattmeter: should show ~600W when heating
-3. Enable debug logging (see below)
-4. Check that heating mode is set correctly
-
-### Debug Logging
-
-Enable detailed logging in `configuration.yaml`:
+### Vypnutí topení v noci
 
 ```yaml
-logger:
-  default: info
-  logs:
-    custom_components.terma_moa_blue: debug
+automation:
+  - alias: "Topení koupelna - noční vypnutí"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    action:
+      - service: climate.turn_off
+        target:
+          entity_id: climate.terma_moa_blue_pokojova_teplota
 ```
 
-Restart Home Assistant and check the logs.
+### Boost režim na 2 hodiny
 
-## Technical Details
-
-### Protocol Reverse Engineering
-
-This integration was developed through reverse engineering of the Terma BlueLine Next mobile app using Frida instrumentation.
-
-**Key findings:**
-- Device uses Bluetooth Low Energy (BLE) GATT protocol
-- Service UUID: `d97352b0-d19e-11e2-9e96-0800200c9a66`
-- Operating modes: `0x20` (OFF), `0x21` (ON)
-- Temperature format: Little-endian 16-bit integer (value × 10)
-- Requires Bluetooth pairing with PIN `123456`
-
-### BLE Characteristics
-
-| UUID | Function | Format |
-|------|----------|--------|
-| `d97352b1` | Room temperature | `[current_low, current_high, target_low, target_high]` |
-| `d97352b2` | Element temperature | `[current_low, current_high, target_low, target_high]` |
-| `d97352b3` | Operating mode | `[mode, 0x00, 0x00, 0x00]` |
-
-## Development
-
-### Project Structure
-
-```
-custom_components/terma_moa_blue/
-├── __init__.py          # Integration setup
-├── manifest.json        # Integration metadata
-├── config_flow.py       # Configuration flow
-├── const.py            # Constants and enums
-├── coordinator.py      # Data update coordinator
-├── api.py             # BLE communication layer
-├── climate.py         # Climate entity
-└── sensor.py          # Sensor entities
+```yaml
+automation:
+  - alias: "Topení koupelna - boost režim"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.bathroom_boost
+        to: "on"
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.terma_moa_blue_pokojova_teplota
+        data:
+          temperature: 26
+          hvac_mode: heat
+      - delay:
+          hours: 2
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.terma_moa_blue_pokojova_teplota
+        data:
+          temperature: 21
 ```
 
-### Contributing
+## Řešení problémů
 
-Contributions are welcome! Please:
+### Zařízení se nepřipojí
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+1. Ujistěte se, že topná tyč je v párovacím režimu (modrá LED bliká)
+2. Zkontrolujte, že není topná tyč spárovaná s mobilní aplikací Terma
+3. Restartujte Home Assistant
+4. Zkuste odpárovat a spárovat znovu
 
-### Reverse Engineering Process
+### Chyba "Error reading characteristic"
 
-The protocol was reverse-engineered using:
-- Frida instrumentation framework
-- Android app decompilation (JADX)
-- BLE packet capture (Wireshark)
-- Runtime hooking of Bluetooth GATT operations
+To obvykle znamená chybu autentizace:
+1. Přepněte topnou tyč do párovacího režimu
+2. Odstraňte integraci v Home Assistant
+3. Přidejte ji znovu
 
-See [Frida scripts](docs/frida/) for details.
+### Časté odpojování
 
-## Credits
+- Zkontrolujte dosah Bluetooth signálu
+- Přesuňte Bluetooth adaptér blíže k topné tyči
+- Minimalizujte interference na frekvenci 2.4 GHz
 
-- **Developer:** [@johnfromul](https://github.com/johnfromul)
-- **Assistant:** Claude (Anthropic) - Protocol analysis and integration development
-- **Manufacturer:** [Terma](https://www.terma.com/)
+### Nefunkční čtení teploty
 
-## License
+Pokud se nezobrazují aktuální teploty:
+1. Počkejte 30 sekund na první aktualizaci
+2. Zkontrolujte logy Home Assistant
+3. Restartujte integraci
 
-MIT License - see [LICENSE](LICENSE) file for details.
+## Technické detaily
 
-## Disclaimer
+### BLE Charakteristiky
 
-This is an unofficial integration not affiliated with or endorsed by Terma. Use at your own risk.
+| UUID | Popis |
+|------|-------|
+| `d97352b0-d19e-11e2-9e96-0800200c9a66` | Service UUID |
+| `d97352b1-d19e-11e2-9e96-0800200c9a66` | Pokojová teplota (aktuální + cílová) |
+| `d97352b2-d19e-11e2-9e96-0800200c9a66` | Teplota topné tyče (aktuální + cílová) |
+| `d97352b3-d19e-11e2-9e96-0800200c9a66` | Provozní režim |
 
-The integration was developed through reverse engineering for personal use and educational purposes. All trademarks belong to their respective owners.
+### Kódování teplot
 
-## Support
+Teploty jsou kódovány jako 4 bajty:
+- Bajty 0-1: Aktuální teplota × 10
+- Bajty 2-3: Cílová teplota × 10
 
-- **Issues:** [GitHub Issues](https://github.com/johnfromul/terma_moa_blue/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/johnfromul/terma_moa_blue/discussions)
+Příklad: 21.5°C = 215 = 0x00 0xD7
 
-## Changelog
+## Příspěvky
 
-See [CHANGELOG.md](CHANGELOG.md) for version history.
+Příspěvky jsou vítány! Pokud najdete chybu nebo máte nápad na vylepšení:
 
-## Related Projects
+1. Vytvořte issue
+2. Pošlete pull request
 
-- [Home Assistant](https://www.home-assistant.io/)
-- [HACS](https://hacs.xyz/)
-- [Bleak](https://github.com/hbldh/bleak) - BLE library
-- [ESPHome Bluetooth Proxy](https://esphome.io/components/bluetooth_proxy.html)
+## Poděkování
 
----
+Tato integrace je založena na:
+- [terma-moa-blue-esphome](https://github.com/Andrew-a-g/terma-moa-blue-esphome) od Andrew-a-g
+- [homebridge-TERMA-MOA-Blue](https://github.com/J1mbo/homebridge-TERMA-MOA-Blue) od J1mbo
+- [ha-hudsonread-heater-control](https://github.com/mecorre1/ha-hudsonread-heater-control) od mecorre1
+- [Home Assistant Community](https://community.home-assistant.io/t/terma-blue-line-bluetooth-radiators-and-heating-elements/81325) za reverse engineering protokolu
 
-⭐ If you find this integration useful, please star the repository!
+## Licence
+
+MIT License
+
+## Upozornění
+
+Toto je neoficiální integrace a není schválena ani podporována společností Terma. Používání na vlastní riziko. Vždy dodržujte bezpečnostní pokyny při práci s elektrickými topnými zařízeními.
+
+**DŮLEŽITÉ:** Radiátory musí být naplněny správným množstvím kapaliny. Nikdy nezapínejte topnou tyč naprázdno!

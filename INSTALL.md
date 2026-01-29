@@ -1,73 +1,73 @@
-# Detailed Installation Instructions
+# Detailní instalační instrukce
 
-## Preparation
+## Příprava
 
-### 1. Check Bluetooth Adapter
+### 1. Kontrola Bluetooth adaptéru
 
-First, ensure your Home Assistant has functional Bluetooth:
+Nejprve se ujistěte, že váš Home Assistant má funkční Bluetooth:
 
 ```bash
-# In Home Assistant terminal, run:
+# V terminálu Home Assistant spusťte:
 hcitool dev
 ```
 
-You should see your Bluetooth adapter listed. If not, you need to install or enable Bluetooth.
+Měli byste vidět váš Bluetooth adaptér. Pokud ne, musíte nainstalovat nebo povolit Bluetooth.
 
-### 2. Prepare Heating Element
+### 2. Příprava topné tyče
 
-1. Ensure the heating element is connected to mains power
-2. Ensure the radiator is properly filled with fluid
-3. **Never run the heating element dry!**
+1. Ujistěte se, že topná tyč je zapojena do elektrické sítě
+2. Ujistěte se, že radiátor je správně naplněn kapalinou
+3. Nikdy nezapínejte topnou tyč naprázdno!
 
-## Installation via HACS (Recommended)
+## Instalace přes HACS (doporučeno)
 
-### Step 1: Install HACS
+### Krok 1: Instalace HACS
 
-If you don't have HACS installed yet:
+Pokud ještě nemáte HACS nainstalovaný:
 
-1. Visit https://hacs.xyz/docs/setup/download
-2. Follow the installation instructions
-3. Restart Home Assistant
+1. Navštivte https://hacs.xyz/docs/setup/download
+2. Následujte instalační instrukce
+3. Restartujte Home Assistant
 
-### Step 2: Add Custom Repository
+### Krok 2: Přidání custom repository
 
-1. Open HACS in Home Assistant (`Settings` → `HACS`)
-2. Click the three dots in the top right corner
-3. Select `Custom repositories`
-4. Enter URL: `https://github.com/johnfromul/terma_moa_blue`
-5. Select category `Integration`
-6. Click `Add`
+1. Otevřete HACS v Home Assistant (`Nastavení` → `HACS`)
+2. Klikněte na tři tečky v pravém horním rohu
+3. Vyberte `Custom repositories`
+4. Vložte URL: `https://github.com/honza/terma_moa_blue`
+5. V kategorii vyberte `Integration`
+6. Klikněte `Add`
 
-### Step 3: Install Integration
+### Krok 3: Instalace integrace
 
-1. In HACS, search for "Terma MOA Blue"
-2. Click on the integration card
-3. Click `Download`
-4. Restart Home Assistant
+1. V HACS vyhledejte "Terma MOA Blue"
+2. Klikněte na kartu integrace
+3. Klikněte `Download`
+4. Restartujte Home Assistant
 
-## Manual Installation
+## Ruční instalace
 
-### Step 1: Download Files
+### Krok 1: Stažení souborů
 
 ```bash
 cd /config
 mkdir -p custom_components
 cd custom_components
-git clone https://github.com/johnfromul/terma_moa_blue.git
+git clone https://github.com/honza/terma_moa_blue.git
 ```
 
-or download and extract ZIP:
+nebo stáhněte ZIP a rozbalte:
 
 ```bash
 cd /config/custom_components
-wget https://github.com/johnfromul/terma_moa_blue/archive/refs/heads/main.zip
+wget https://github.com/honza/terma_moa_blue/archive/refs/heads/main.zip
 unzip main.zip
 mv terma_moa_blue-main terma_moa_blue
 ```
 
-### Step 2: Verify Structure
+### Krok 2: Kontrola struktury
 
-Ensure you have the correct structure:
+Ujistěte se, že máte správnou strukturu:
 
 ```
 custom_components/
@@ -86,231 +86,166 @@ custom_components/
         └── en.json
 ```
 
-### Step 3: Restart
+### Krok 3: Restart
 
-Restart Home Assistant.
+Restartujte Home Assistant.
 
-## Configuration
+## Konfigurace
 
-### Step 1: Bluetooth Pairing (REQUIRED)
+### Krok 1: Přepnutí do párovacího režimu
 
-**Important:** Devices must be Bluetooth paired before use.
+Topná tyč musí být v párovacím režimu pro první připojení:
 
-#### Put Device in Pairing Mode
+1. **Stiskněte a přidržte** tlačítko na topné tyči po dobu **cca 5 sekund**
+2. Uvolněte tlačítko, když začne **blikat modrá LED**
+3. Párovací režim je aktivní po dobu **30 sekund**
+4. Během tohoto času musíte dokončit párování
 
-1. **Press and hold** the button on the heating element for **5 seconds**
-2. Release when the **blue LED starts blinking**
-3. Pairing mode is active for **30 seconds**
-4. You must complete pairing within this time
+**Poznámka:** Pokud je topná tyč spárována s mobilní aplikací Terma, musíte ji nejprve odpárovat.
 
-**Note:** If the heating element is paired with the Terma mobile app, you must unpair it first.
+### Krok 2: Přidání integrace
 
-#### Pair via Terminal
+1. Přejděte do `Nastavení` → `Zařízení a služby`
+2. Klikněte na `+ Přidat integraci`
+3. Vyhledejte **Terma MOA Blue**
 
-```bash
-# Open Home Assistant terminal (SSH or Terminal addon)
-bluetoothctl
+#### Automatická detekce
 
-# Disable scanning to stop log spam
-scan off
+Pokud je topná tyč v dosahu a v párovacím režimu, měla by být automaticky detekována:
 
-# Pair with your device (replace with your MAC address)
-pair CC:22:37:11:47:6D
+1. Vyberte ji ze seznamu
+2. Potvrďte přidání
 
-# Enter PIN when prompted
-123456
+#### Ruční výběr
 
-# Trust the device
-trust CC:22:37:11:47:6D
+Pokud automatická detekce nefunguje:
 
-# Verify pairing
-paired-devices
+1. Klikněte na tlačítko pro ruční výběr
+2. Vyberte zařízení ze seznamu Bluetooth zařízení
+3. MAC adresa je ve formátu: `XX:XX:XX:XX:XX:XX`
 
-# Exit
-quit
-```
+### Krok 3: Dokončení konfigurace
 
-#### Restart Home Assistant
+Po úspěšném přidání se vytvoří:
+- 2× Climate entity (pokojová a radiátorová teplota)
+- 5× Sensor entity (teploty a režim)
 
-```bash
-ha core restart
-```
+## Ověření funkčnosti
 
-### Step 2: Add Integration
+### Kontrola v Developer Tools
 
-1. Go to `Settings` → `Devices & Services`
-2. Click `+ Add Integration`
-3. Search for **Terma MOA Blue**
+1. Přejděte do `Developer Tools` → `States`
+2. Vyhledejte entity začínající na `climate.terma_moa_blue_`
+3. Měli byste vidět aktuální stav (teploty, režim)
 
-#### Automatic Discovery
+### Testování ovládání
 
-If the heating element is in range and in pairing mode, it should be automatically discovered:
+1. Přejděte do `Developer Tools` → `Services`
+2. Vyberte službu `climate.set_temperature`
+3. Vyberte entitu `climate.terma_moa_blue_pokojova_teplota`
+4. Nastavte teplotu (např. 22°C)
+5. Klikněte `Call Service`
 
-1. Select it from the list
-2. Confirm addition
+Topná tyč by měla začít topení a LED by měly indikovat aktivitu.
 
-#### Manual Selection
+## Řešení problémů při instalaci
 
-If automatic discovery doesn't work:
+### Integrace se nezobrazuje v seznamu
 
-1. Click the button for manual selection
-2. Select device from the list of Bluetooth devices
-3. MAC address format: `XX:XX:XX:XX:XX:XX`
-
-### Step 3: Complete Configuration
-
-After successful addition, the following will be created:
-- 2× Climate entities (room and element temperature)
-- 5× Sensor entities (temperatures and mode)
-
-## Verify Functionality
-
-### Check in Developer Tools
-
-1. Go to `Developer Tools` → `States`
-2. Search for entities starting with `climate.terma_wireless_`
-3. You should see current state (temperatures, mode)
-
-### Test Control
-
-1. Go to `Developer Tools` → `Services`
-2. Select service `climate.set_temperature`
-3. Select entity `climate.terma_wireless_room`
-4. Set temperature (e.g., 22°C)
-5. Click `Call Service`
-
-The heating element should start heating and LEDs should indicate activity.
-
-## Troubleshooting Installation
-
-### Integration Not Showing in List
-
-**Solution:**
-1. Verify files are in correct folder
-2. Restart Home Assistant
-3. Clear browser cache (Ctrl+F5)
+**Řešení:**
+1. Zkontrolujte, že soubory jsou ve správné složce
+2. Restartujte Home Assistant
+3. Vymažte cache prohlížeče (Ctrl+F5)
 
 ### "No devices found"
 
-**Solution:**
-1. Ensure heating element is powered on
-2. Put it in pairing mode
-3. Check Bluetooth range
-4. Try restarting Bluetooth:
+**Řešení:**
+1. Ujistěte se, že topná tyč je zapnutá
+2. Přepněte ji do párovacího režimu
+3. Zkontrolujte dosah Bluetooth
+4. Zkuste restartovat Bluetooth:
    ```bash
    sudo systemctl restart bluetooth
    ```
 
 ### "Already configured"
 
-**Solution:**
-1. Go to `Settings` → `Devices & Services`
-2. Find old Terma MOA Blue instance
-3. Click three dots and select `Remove`
-4. Restart Home Assistant
-5. Try again
+**Řešení:**
+1. Přejděte do `Nastavení` → `Zařízení a služby`
+2. Najděte starou instanci Terma MOA Blue
+3. Klikněte na tři tečky a vyberte `Odstranit`
+4. Restartujte Home Assistant
+5. Zkuste znovu
 
 ### "Unable to connect"
 
-**Solution:**
-1. Unpair heating element from Terma mobile app
-2. Reset Bluetooth pairing on heating element (disconnect from power, wait 10s, reconnect)
-3. Put in pairing mode
-4. Try connection again
+**Řešení:**
+1. Odpojte topnou tyč od mobilní aplikace Terma
+2. Resetujte Bluetooth párování na topné tyči (odpojte od sítě, počkejte 10s, zapojte)
+3. Přepněte do párovacího režimu
+4. Zkuste připojení znovu
 
-### "Device not paired" or "ATT error 0x0e"
+### Chyba v logu: "bleak not found"
 
-**Solution:**
-The device requires Bluetooth pairing. Follow the pairing steps above:
+**Řešení:**
 ```bash
-bluetoothctl
-pair CC:22:37:11:47:6D
-# PIN: 123456
-trust CC:22:37:11:47:6D
-```
-
-### Error in log: "bleak not found"
-
-**Solution:**
-```bash
-# In Home Assistant container or venv:
+# V Home Assistant kontejneru nebo venv:
 pip install bleak>=0.21.0 bleak-retry-connector>=3.1.0
 ```
 
-## Advanced Configuration
+## Pokročilá konfigurace
 
-### Change Update Interval
+### Změna intervalu aktualizace
 
-If you want to change how often data updates (default is 120s):
+Pokud chcete změnit, jak často se aktualizují data (výchozí je 30s):
 
-1. Edit file `const.py`
-2. Change line: `UPDATE_INTERVAL = 120` to desired value in seconds
-3. Restart Home Assistant
+1. Upravte soubor `const.py`
+2. Změňte řádek: `UPDATE_INTERVAL = 30` na požadovanou hodnotu v sekundách
+3. Restartujte Home Assistant
 
-**Note:** Lower values mean more frequent updates but also higher Bluetooth load.
+**Poznámka:** Nižší hodnota znamená častější aktualizace, ale také vyšší zatížení Bluetooth.
 
-### Debug Logging
+### Debug logging
 
-For detailed logs:
+Pro detailní logy:
 
-1. Add to `configuration.yaml`:
+1. Přidejte do `configuration.yaml`:
    ```yaml
    logger:
      default: info
      logs:
        custom_components.terma_moa_blue: debug
    ```
-2. Restart Home Assistant
-3. Find logs in `Settings` → `System` → `Logs`
+2. Restartujte Home Assistant
+3. Logy najdete v `Settings` → `System` → `Logs`
 
-## Safety Warning
+## Bezpečnostní upozornění
 
-⚠️ **IMPORTANT SAFETY INFORMATION**
+⚠️ **DŮLEŽITÉ BEZPEČNOSTNÍ INFORMACE**
 
-1. **Never run heating element dry** - radiator must be fully filled with fluid
-2. **Maximum temperature** - do not exceed maximum temperature of 60°C for heating element
-3. **Regular checks** - monitor fluid level in radiator
-4. **Electrical safety** - installation should only be performed by qualified electrician
-5. **Child safety** - keep children away from hot surfaces
+1. **Nikdy nezapínejte topnou tyč naprázdno** - radiátor musí být plně naplněn kapalinou
+2. **Maximální teplota** - nepřekračujte maximální teplotu 60°C pro topnou tyč
+3. **Pravidelná kontrola** - kontrolujte hladinu kapaliny v radiátoru
+4. **Elektrická bezpečnost** - instalaci provádějte pouze kvalifikovaný elektrikář
+5. **Dohled nad dětmi** - držte děti mimo dosah topného tělesa
 
-## Support
+## Podpora
 
-If you have problems:
+Pokud máte problémy:
 
-1. Check Home Assistant logs
-2. Search for similar issue in GitHub Issues
-3. Create new issue with:
-   - Problem description
-   - Logs from Home Assistant
-   - Home Assistant version
-   - Heating element model
+1. Zkontrolujte logy Home Assistant
+2. Vyhledejte podobný problém v Issues na GitHubu
+3. Vytvořte nový issue s:
+   - Popisem problému
+   - Logy z Home Assistant
+   - Verzí Home Assistant
+   - Model topné tyče
 
-## Next Steps
+## Další kroky
 
-After successful installation:
+Po úspěšné instalaci:
 
-1. Create automations (see README.md and EXAMPLES.md)
-2. Add to Lovelace dashboard
-3. Set up scenes for different times of day
-4. Use Google Assistant / Alexa integration
-
-## Multiple Devices
-
-To add multiple heating elements:
-
-1. Pair each device via `bluetoothctl` (use different MAC addresses)
-2. Add each as separate integration in Home Assistant
-3. Each device will have its own set of entities
-
-Example for two devices:
-```bash
-# First device
-bluetoothctl pair CC:22:37:11:48:0D
-bluetoothctl trust CC:22:37:11:48:0D
-
-# Second device
-bluetoothctl pair CC:22:37:11:47:6D
-bluetoothctl trust CC:22:37:11:47:6D
-```
-
-Then add both through the integration UI.
+1. Vytvořte automatizace (viz README.md)
+2. Přidejte do Lovelace dashboard
+3. Nastavte scény pro různé části dne
+4. Využijte Google Assistant / Alexa integraci

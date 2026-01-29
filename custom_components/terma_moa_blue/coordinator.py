@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 import logging
+import random
 
 from bleak.backends.device import BLEDevice
 
@@ -20,18 +21,25 @@ class TermaMoaBlueCoordinator(DataUpdateCoordinator[None]):
 
     def __init__(self, hass: HomeAssistant, ble_device: BLEDevice) -> None:
         """Initialize the coordinator."""
+        # Přidat 0-60s náhodný jitter k intervalu aby se update cykly nesynchronizovaly
+        jitter = random.randint(0, 60)
+        interval_with_jitter = UPDATE_INTERVAL + jitter
+        
+        _LOGGER.debug(
+            "Initializing coordinator for %s with interval %ds (base %ds + jitter %ds)",
+            ble_device.address,
+            interval_with_jitter,
+            UPDATE_INTERVAL,
+            jitter,
+        )
+        
         super().__init__(
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(seconds=UPDATE_INTERVAL),
+            update_interval=timedelta(seconds=interval_with_jitter),
         )
         self.device = TermaMoaBlueDevice(ble_device)
-        self.device.register_disconnect_callback(self._handle_disconnect)
-
-    def _handle_disconnect(self) -> None:
-        """Handle device disconnection."""
-        _LOGGER.warning("Device disconnected, will try to reconnect on next update")
 
     async def _async_update_data(self) -> None:
         """Fetch data from the device."""
@@ -42,4 +50,5 @@ class TermaMoaBlueCoordinator(DataUpdateCoordinator[None]):
 
     async def async_shutdown(self) -> None:
         """Shutdown the coordinator."""
-        await self.device.disconnect()
+        # No persistent connection to close
+        pass
