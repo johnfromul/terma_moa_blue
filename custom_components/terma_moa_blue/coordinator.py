@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 import logging
+import random
 
 from bleak.backends.device import BLEDevice
 
@@ -20,11 +21,23 @@ class TermaMoaBlueCoordinator(DataUpdateCoordinator[None]):
 
     def __init__(self, hass: HomeAssistant, ble_device: BLEDevice) -> None:
         """Initialize the coordinator."""
+        # Add 0-60s random jitter to interval to prevent update cycles from synchronizing
+        jitter = random.randint(0, 60)
+        interval_with_jitter = UPDATE_INTERVAL + jitter
+        
+        _LOGGER.debug(
+            "Initializing coordinator for %s with interval %ds (base %ds + jitter %ds)",
+            ble_device.address,
+            interval_with_jitter,
+            UPDATE_INTERVAL,
+            jitter,
+        )
+        
         super().__init__(
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(seconds=UPDATE_INTERVAL),
+            update_interval=timedelta(seconds=interval_with_jitter),
         )
         self.device = TermaMoaBlueDevice(ble_device)
 

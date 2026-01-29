@@ -8,6 +8,7 @@ from typing import Callable
 
 from bleak import BleakClient
 from bleak.exc import BleakError
+from bleak_retry_connector import establish_connection
 from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
 
 from .const import (
@@ -19,10 +20,14 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Global lock for serial BT operations - prevents concurrent connections from multiple devices
+# Solves the problem when two TermaMoaBlueDevice instances try to connect simultaneously → adapter overload
+BT_SERIAL_LOCK = asyncio.Lock()
+
 # Connection settings
-MAX_CONNECT_ATTEMPTS = 5  # Zvýšeno z 3 na 5
-CONNECTION_TIMEOUT = 20.0  # Zvýšeno z 15 na 20 sekund
-RETRY_DELAY = 3.0  # Zvýšeno z 2 na 3 sekundy mezi pokusy
+MAX_CONNECT_ATTEMPTS = 5  # Increased from 3 to 5
+CONNECTION_TIMEOUT = 20.0  # Increased from 15 to 20 seconds
+RETRY_DELAY = 3.0  # Increased from 2 to 3 seconds between retries
 
 
 class TermaMoaBlueDevice:
@@ -74,8 +79,13 @@ class TermaMoaBlueDevice:
     async def _execute_with_connection(
         self, operation: Callable[[BleakClient], None]
     ) -> None:
-        """Execute an operation with a temporary BLE connection and retry logic."""
-        async with self._lock:
+        """Execute an operation with a temporary BLE connection and retry logic.
+        
+        Uses GLOBAL BT_SERIAL_LOCK (not instance self._lock) to prevent concurrent 
+        connections from multiple devices overwhelming the Bluetooth adapter.
+        """
+        async with BT_SERIAL_LOCK:  # ← GLOBÁLNÍ zámek místo self._lock!
+            _LOGGER.debug("Acquired global BT lock for %s", self.address)
             last_error = None
             
             for attempt in range(MAX_CONNECT_ATTEMPTS):
@@ -88,14 +98,14 @@ class TermaMoaBlueDevice:
                         self.address,
                     )
                     
-                    # Create temporary connection
-                    client = BleakClient(
-                        self._ble_device.address,
+                    # Use bleak-retry-connector for reliable connection
+                    client = await establish_connection(
+                        BleakClient,
+                        self._ble_device,
+                        self.address,
+                        max_attempts=1,  # We handle retries ourselves
                         timeout=CONNECTION_TIMEOUT,
                     )
-                    
-                    # Connect with pairing
-                    await client.connect()
                     
                     # Try to pair if not already paired
                     try:
