@@ -104,7 +104,7 @@ paired-devices
 quit
 ```
 
-$\color{red}{\text{ ### !!! if you have a problem in the terminal with unstopable ble ads scanning.}}$
+### $\color{red}{\text{!!! if you have a problem in the terminal with unstopable ads scanning}}$
 make a easy bash script \config\terma_pair.sh with this code:
 ```sh
 #!/bin/bash
