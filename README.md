@@ -110,7 +110,7 @@ make a easy bash script \config\terma_pair.sh with this code:
 #!/bin/bash
 
 # Switch the heating element into pairing mode!
-echo "!!! SWITCH THE HEATING ELEMENT INTO PAIRING MODE (5s hold button, blue
+echo "!!! SWITCH THE HEATING ELEMENT INTO PAIRING MODE (5s hold button with temp. icon, blue
 LED slow blink) !!!"
 echo "You have 30 seconds..."
 sleep 10
