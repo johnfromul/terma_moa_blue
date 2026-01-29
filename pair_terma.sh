@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Přepni topnou tyč do pairing módu!
-echo "!!! PŘEPNI TOPNOU TYČ DO PAIRING MÓDU (5s tlačítko, modrá LED) !!!"
-echo "Máš 30 sekund..."
+# Switch the heating element into pairing mode!
+echo "!!! SWITCH THE HEATING ELEMENT INTO PAIRING MODE (5s hold button, blue
+LED slow blink) !!!"
+echo "You have 30 seconds..."
 sleep 10
 
 {
