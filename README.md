@@ -26,7 +26,7 @@ Integrace topných tyčí Terma MOA Blue do Home Assistant přes Bluetooth Low E
 1. Otevřete HACS v Home Assistant
 2. Klikněte na tři tečky v pravém horním rohu
 3. Vyberte "Custom repositories"
-4. Přidejte URL tohoto repozitáře: `https://github.com/honza/terma_moa_blue`
+4. Přidejte URL tohoto repozitáře: `https://github.com/johnfromul/terma_moa_blue`
 5. Vyberte kategorii "Integration"
 6. Klikněte na "Add"
 
