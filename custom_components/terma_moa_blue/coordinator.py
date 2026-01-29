@@ -21,7 +21,7 @@ class TermaMoaBlueCoordinator(DataUpdateCoordinator[None]):
 
     def __init__(self, hass: HomeAssistant, ble_device: BLEDevice) -> None:
         """Initialize the coordinator."""
-        # Přidat 0-60s náhodný jitter k intervalu aby se update cykly nesynchronizovaly
+        # Add 0-60s random jitter to interval to prevent update cycles from synchronizing
         jitter = random.randint(0, 60)
         interval_with_jitter = UPDATE_INTERVAL + jitter
         

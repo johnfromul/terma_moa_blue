@@ -19,14 +19,14 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# Globální zámek pro sériové BT operace - zabraňuje současnému připojení více zařízení
-# Řeší problém kdy se dva TermaMoaBlueDevice snaží připojit současně → přetížení adaptéru
+# Global lock for serial BT operations - prevents concurrent connections from multiple devices
+# Solves the problem when two TermaMoaBlueDevice instances try to connect simultaneously → adapter overload
 BT_SERIAL_LOCK = asyncio.Lock()
 
 # Connection settings
-MAX_CONNECT_ATTEMPTS = 5  # Zvýšeno z 3 na 5
-CONNECTION_TIMEOUT = 20.0  # Zvýšeno z 15 na 20 sekund
-RETRY_DELAY = 3.0  # Zvýšeno z 2 na 3 sekundy mezi pokusy
+MAX_CONNECT_ATTEMPTS = 5  # Increased from 3 to 5
+CONNECTION_TIMEOUT = 20.0  # Increased from 15 to 20 seconds
+RETRY_DELAY = 3.0  # Increased from 2 to 3 seconds between retries
 
 
 class TermaMoaBlueDevice:

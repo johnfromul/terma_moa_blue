@@ -13,7 +13,7 @@ CHAR_MODE = "d97352b3-d19e-11e2-9e96-0800200c9a66"
 DEFAULT_PAIRING_CODE = "123456"
 
 # Update intervals
-UPDATE_INTERVAL = 300  # 5 minut - snížení zátěže na BT adaptér  # seconds (2 minutes) - topné tyče potřebují delší pauzu mezi připojeními
+UPDATE_INTERVAL = 300  # 5 minutes - reduced BT adapter load - heating elements need longer pause between connections
 
 # Temperature limits
 MIN_ROOM_TEMP = 15
@@ -25,11 +25,11 @@ MAX_ELEMENT_TEMP = 60
 class OperatingMode(IntEnum):
     """Operating modes for Terma MOA Blue."""
 
-    OFF_MANUAL = 0x00  # 0 - vypnuto manuálně na zařízení
-    OFF = 0x20  # 32 - vypnuto přes app/HA
-    ON = 0x21   # 33 - zapnuto/topí
+    OFF_MANUAL = 0x00  # 0 - turned off manually on device
+    OFF = 0x20  # 32 - turned off via app/HA
+    ON = 0x21   # 33 - turned on/heating
     
-    # Staré hodnoty (možná nepoužívané)
+    # Legacy values (possibly unused)
     MANUAL = 1
     ROOM_TEMP_MANUAL = 5
     ELEMENT_TEMP_MANUAL = 6
