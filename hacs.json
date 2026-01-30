@@ -1,7 +1,5 @@
 {
   "name": "Terma MOA Blue",
-  "content_in_root": false,
-  "homeassistant": "2023.9.0",
-  "render_readme": true,
-  "domains": ["climate", "sensor"]
+  "description": "Integration for Terma MOA Blue heating elements",
+  "render_readme": true
 }
