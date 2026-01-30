@@ -8,6 +8,7 @@ from typing import Callable
 
 from bleak import BleakClient
 from bleak.exc import BleakError
+from bleak_retry_connector import establish_connection
 from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
 
 from .const import (
@@ -97,14 +98,14 @@ class TermaMoaBlueDevice:
                         self.address,
                     )
                     
-                    # Create temporary connection
-                    client = BleakClient(
-                        self._ble_device.address,
+                    # Use bleak-retry-connector for reliable connection
+                    client = await establish_connection(
+                        BleakClient,
+                        self._ble_device,
+                        self.address,
+                        max_attempts=1,  # We handle retries ourselves
                         timeout=CONNECTION_TIMEOUT,
                     )
-                    
-                    # Connect with pairing
-                    await client.connect()
                     
                     # Try to pair if not already paired
                     try:

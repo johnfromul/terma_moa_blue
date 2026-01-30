@@ -7,10 +7,12 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/honza/terma_moa_blue/issues",
   "requirements": ["bleak>=0.21.0", "bleak-retry-connector>=3.1.0"],
-  "version": "1.0.18",
+  "version": "1.0.20",
   "bluetooth": [
     {
       "local_name": "MOA Blue*"
     }
-  ]
+  ],
+  "integration_type": "device",
+  "loggers": ["custom_components.terma_moa_blue"]
 }

@@ -9,6 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import device_registry as dr
 
 from .const import DOMAIN
 from .coordinator import TermaMoaBlueCoordinator
@@ -39,6 +40,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    # Register device with manufacturer info
+    device_registry = dr.async_get(hass)
+    device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, address)},
+        name=entry.title,
+        manufacturer="Terma",
+        model="MOA Blue",
+        hw_version="1.0",
+        configuration_url="https://en.termaheat.com/moa-blue-intelligent-electric-radiators",
+    )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
