@@ -1,19 +1,19 @@
 {
   "domain": "terma_moa_blue",
   "name": "Terma MOA Blue",
-  "codeowners": ["@johnfromul"],
-  "config_flow": true,
-  "dependencies": ["bluetooth"],
-  "documentation": "https://github.com/johnfromul/terma_moa_blue",
-  "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/johnfromul/terma_moa_blue/issues",
-  "requirements": ["bleak>=0.21.0", "bleak-retry-connector>=3.1.0"],
-  "version": "1.0.21",
   "bluetooth": [
     {
       "local_name": "MOA Blue*"
     }
   ],
+  "codeowners": ["@johnfromul"],
+  "config_flow": true,
+  "dependencies": ["bluetooth"],
+  "documentation": "https://github.com/johnfromul/terma_moa_blue",
   "integration_type": "device",
-  "loggers": ["custom_components.terma_moa_blue"]
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/johnfromul/terma_moa_blue/issues",
+  "loggers": ["custom_components.terma_moa_blue"],
+  "requirements": ["bleak>=0.21.0", "bleak-retry-connector>=3.1.0"],
+  "version": "1.0.21"
 }
