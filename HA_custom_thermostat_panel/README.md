@@ -1,3 +1,5 @@
+![Custom thermostat](thermostat.png)
+
 1) kroky pro přidání mé vlastní karty termostatu pro užití 2 Terma Moa Blue tyčí
 # Steps to adding my custom thermostat card for using 2 pcs. of Terma Moa Blue heating elements
 
