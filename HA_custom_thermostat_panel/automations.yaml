@@ -1,0 +1,144 @@
+# Termostat - zapnutí když teplota klesne pod (požadovaná - hystereze)
+# Thermostat - switch on when the temperature drops below (desired - hysteresis)
+- alias: "Koupelna Thermostat - Zapnutí topení"
+  id: koupelna_thermostat_heat_on
+  mode: single
+  trigger:
+    - platform: state
+      entity_id: input_boolean.koupelna_thermostat_enabled
+      to: "on"
+    - platform: template
+      value_template: > # entita vašeho externího teploměru | your external temperature sensor entity
+        {{ states('sensor.ble_temperature_atc_horni_koupelna') | float(0) < 
+           (states('input_number.koupelna_thermostat_temp_mistnost') | float(24) - 
+            states('input_number.koupelna_thermostat_hystereze') | float(1)) }}
+  condition:
+    - condition: state
+      entity_id: input_boolean.koupelna_thermostat_enabled
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.koupelna_manual_mode
+      state: "off"
+    - condition: template
+      value_template: > # entita vašeho externího teploměru | your external temperature sensor entity
+        {{ states('sensor.ble_temperature_atc_horni_koupelna') | float(0) < 
+           (states('input_number.koupelna_thermostat_temp_mistnost') | float(24) - 
+            states('input_number.koupelna_thermostat_hystereze') | float(1)) }}
+    - condition: template
+      value_template: "{{ not is_state('climate.terma_wireless_element_temperature_2', 'heat') }}"
+  action:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.terma_wireless_element_temperature_2
+      data:
+        hvac_mode: "heat"
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.terma_wireless_element_temperature_2
+      data:
+        temperature: "{{ states('input_number.koupelna_thermostat_temp_tyce') | float }}"
+    - delay:
+        seconds: 5
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.terma_wireless_element_temperature
+      data:
+        hvac_mode: "heat"
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.terma_wireless_element_temperature
+      data:
+        temperature: "{{ states('input_number.koupelna_thermostat_temp_tyce') | float }}"
+
+# Termostat - vypnutí když teplota dosáhne požadované
+# Thermostat - shutdown when the temperature reaches the desired level
+- alias: "Koupelna Thermostat - Vypnutí topení"
+  id: koupelna_thermostat_heat_off
+  mode: single
+  trigger:
+    - platform: template
+      value_template: > # entita vašeho externího teploměru | your external temperature sensor entity
+        {{ states('sensor.ble_temperature_atc_horni_koupelna') | float(0) >= 
+           states('input_number.koupelna_thermostat_temp_mistnost') | float(24) }}
+  condition:
+    - condition: state
+      entity_id: input_boolean.koupelna_thermostat_enabled
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.koupelna_manual_mode
+      state: "off"
+    - condition: state
+      entity_id: climate.terma_wireless_element_temperature_2
+      state: "heat"
+  action:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.terma_wireless_element_temperature_2
+      data:
+        hvac_mode: "off"
+    - delay:
+        seconds: 5
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.terma_wireless_element_temperature
+      data:
+        hvac_mode: "off"
+
+# Termostat - vypnutí při deaktivaci termostatu (OFF tlačítko)
+# Thermostat - shutdown when thermostat is deactivated (OFF button)
+- alias: "Koupelna Thermostat - Deaktivace"
+  id: koupelna_thermostat_disabled
+  mode: single
+  trigger:
+    - platform: state
+      entity_id: input_boolean.koupelna_thermostat_enabled
+      to: "off"
+  condition:
+    - condition: state
+      entity_id: input_boolean.koupelna_manual_mode
+      state: "off"
+  action:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.terma_wireless_element_temperature_2
+      data:
+        hvac_mode: "off"
+    - delay:
+        seconds: 5
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: climate.terma_wireless_element_temperature
+      data:
+        hvac_mode: "off"
+
+# Synchronizace teploty tyčí při změně nastavení (posuvníkem)
+# Sync. elements temperature when changing settings (with slider)
+- alias: "Koupelna Thermostat - Sync teploty tyčí"
+  id: koupelna_thermostat_sync_temp
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id: input_number.koupelna_thermostat_temp_tyce
+  condition:
+    - condition: state
+      entity_id: input_boolean.koupelna_thermostat_enabled
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.koupelna_manual_mode
+      state: "off"
+    - condition: state
+      entity_id: climate.terma_wireless_element_temperature_2
+      state: "heat"
+  action:
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.terma_wireless_element_temperature_2
+      data:
+        temperature: "{{ states('input_number.koupelna_thermostat_temp_tyce') | float }}"
+    - delay:
+        seconds: 5
+    - action: climate.set_temperature
+      target:
+        entity_id: climate.terma_wireless_element_temperature
+      data:
+        temperature: "{{ states('input_number.koupelna_thermostat_temp_tyce') | float }}"

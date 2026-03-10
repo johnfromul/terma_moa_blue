@@ -1,0 +1,44 @@
+template:
+  - switch:
+      - name: "Koupelna Žebřík"
+        unique_id: koupelna_zebrik_manual
+        icon: mdi:radiator
+        # Switch svítí, pokud topí alespoň hlavní tyč
+        # The switch lights up when at least the main element is heating up.
+        state: "{{ is_state('climate.terma_wireless_element_temperature_2', 'heat') }}"
+        turn_on:
+          action: script.koupelna_zebrik_sekvence_on
+        turn_off:
+          action: script.koupelna_zebrik_sekvence_off
+
+input_boolean:
+  koupelna_thermostat_enabled:
+    name: Koupelna Thermostat
+    initial: false
+    icon: mdi:thermostat
+
+  koupelna_manual_mode:
+    name: Koupelna Manuální mód # manual mode 
+    initial: false
+    icon: mdi:hand-pointing-up
+    
+    
+    
+input_number:
+  koupelna_thermostat_temp_tyce:
+    name: Koupelna - Teplota tyčí # range of element temperature
+    min: 30
+    max: 60
+    step: 1
+  # initial: 45
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer
+
+  koupelna_thermostat_temp_mistnost:
+    name: Koupelna - Požadovaná teplota místnosti # desired room temperature
+    min: 18
+    max: 30
+    step: 1
+  # initial: 24
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-check
