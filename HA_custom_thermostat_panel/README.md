@@ -16,12 +16,16 @@
 - na zvoleném místě dashboardu kliknout "přidat kartu"
 - scrollovat až dolů a vybrat "manuální"
 - v okně pro yaml kód vše smazat a vložit tento kód:
-´´´type: custom:koupelna-thermostat-card
-name: koupelna žebříky ´´´
+```
+type: custom:koupelna-thermostat-card
+name: koupelna žebříky
+```
 
 *Adding a thermostat card to the card:*
 *- Click "Add card" in the selected location on the dashboard.*
 *- Scroll down and select "Manual."*
 *- Delete everything in the YAML code window and paste this code:*
-´´´type: custom:koupelna-thermostat-card
-name: koupelna žebříky ´´´
+```
+type: custom:koupelna-thermostat-card
+name: koupelna žebříky
+```
