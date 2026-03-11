@@ -3,7 +3,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 [![GitHub release](https://img.shields.io/github/release/johnfromul/terma_moa_blue.svg)](https://github.com/johnfromul/terma_moa_blue/releases)
 [![GitHub](https://img.shields.io/badge/GitHub-terma__moa__blue-blue.svg?logo=github)](https://github.com/johnfromul/terma_moa_blue)
-[![License](https://img.shields.io/github/license/johnfromul/terma_moa_blue.svg)](https://github.com/johnfromul/terma_moa_blue/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/johnfromul/terma_moa_blue.svg?1)](https://github.com/johnfromul/terma_moa_blue/blob/main/LICENSE)
 
 Home Assistant custom integration for **Terma MOA Blue** electric heating elements via Bluetooth Low Energy (BLE).
 
