@@ -9,6 +9,8 @@ Home Assistant custom integration for **Terma MOA Blue** electric heating elemen
 
 This integration allows you to control Terma MOA Blue bathroom radiator heating elements directly from Home Assistant without requiring the official Terma BlueLine Next mobile app.
 
+If you need (or want) to use my own thermostat card, go to my Terma MOA Blue repository, open the "HA_custom_thermostat_panel" folder, and install it in your HomeAssistant according to the instructions. [GitHub Terma MOA Blue](https://github.com/johnfromul/terma_moa_blue)
+
 
 ![Terma MOA Blue](https://en.termaheat.com/images/logo_terma_red_horizontal_2.svg)
 
