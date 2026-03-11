@@ -3,7 +3,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 [![GitHub release](https://img.shields.io/github/release/johnfromul/terma_moa_blue.svg)](https://github.com/johnfromul/terma_moa_blue/releases)
 [![GitHub](https://img.shields.io/badge/GitHub-terma__moa__blue-blue.svg?logo=github)](https://github.com/johnfromul/terma_moa_blue)
-[![License](https://img.shields.io/github/license/johnfromul/terma_moa_blue.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/johnfromul/terma_moa_blue.svg)](https://github.com/johnfromul/terma_moa_blue/blob/main/LICENSE)
 
 Home Assistant custom integration for **Terma MOA Blue** electric heating elements via Bluetooth Low Energy (BLE).
 
@@ -340,8 +340,6 @@ The protocol was reverse-engineered using:
 - BLE packet capture (Wireshark)
 - Runtime hooking of Bluetooth GATT operations
 
-See [Frida scripts](docs/frida/) for details.
-
 ## Credits
 
 - **Developer:** [@johnfromul](https://github.com/johnfromul)
@@ -361,7 +359,6 @@ The integration was developed through reverse engineering for personal use and e
 ## Support
 
 - **Issues:** [GitHub Issues](https://github.com/johnfromul/terma_moa_blue/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/johnfromul/terma_moa_blue/discussions)
 
 ## Changelog
 
