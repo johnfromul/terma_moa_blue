@@ -1,7 +1,7 @@
 ![Custom thermostat](thermostat.png)
 
-#Kkroky pro přidání mé vlastní karty termostatu pro užití 2 Terma Moa Blue tyčí#  
-#Steps to adding my custom thermostat card for using 2 pcs. of Terma Moa Blue heating elements#
+# Kroky pro přidání mé vlastní karty termostatu pro užití 2 Terma Moa Blue tyčí #  
+# Steps to adding my custom thermostat card for using 2 pcs. of Terma Moa Blue heating elements #
 
 **1) přidat soubor "koupelna-thermostat-card.js" do složky WWW vaší instance HA**  
 *Add the file koupelna-thermostat-card.js to the WWW folder of your HA instance."*
@@ -33,3 +33,4 @@ type: custom:koupelna-thermostat-card
 name: koupelna žebříky
 
 ```
+
